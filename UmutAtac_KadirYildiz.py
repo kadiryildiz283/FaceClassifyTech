@@ -81,7 +81,7 @@ for file in os.listdir(unknown_dir):
         
     except Exception as e:
         print(f"An error occurred for image {img_path}: {e}")
-        continue  # Skip to the next image if any exception occurs
+        continue 
     
 print(kilit)
 kisiler = []
