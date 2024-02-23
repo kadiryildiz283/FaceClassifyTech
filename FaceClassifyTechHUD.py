@@ -1,147 +1,162 @@
 import tkinter as tk
-from tkinter import ttk
-from PIL import Image, ImageTk
-import time
 from tkinter import filedialog
+from PIL import Image, ImageTk
 import os
-import urllib.request
-import tkinter.font as tkFont
-from zipfile import ZipFile
-from PIL import  ImageDraw, ImageFont, Image, ImageTk
+import shutil
 from UmutAtac_KadirYildiz import *
-from tkinter import filedialog
-from PIL import Image, ImageTk
-
-def open_file(file_path):
-    new_window = tk.Toplevel(root)
-    img = Image.open(file_path)
-    photo = ImageTk.PhotoImage(img)
-    label = tk.Label(new_window, image=photo)
-    label.image = photo
-    label.pack()
-
-# Tkinter arayüzü kodları
-# ...
-# Tkinter arayüzü kodları devam eder...
-kilit = []
 folder_path = ""
 kisiler = []
-def download_font(font_name, font_url):
-    # Font dosyasını indir
-    font_zip_path = f"{font_name}.zip"
-    urllib.request.urlretrieve(font_url, font_zip_path)
+l = 0
+class ImageGalleryApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Image Gallery")
+        self.folder_path = filedialog.askdirectory()
+        self.image_frame = tk.Frame(root)
+        self.image_frame.pack(padx=10, pady=10)
+        self.l = l
+        self.person1 = ""
+        self.person2 = ""
+        self.loadimages = []
+
+        label = tk.Label(root, text=" resimleri yükle,resmin üstüne tıkla ve sabırla bekle ardından resimleri kaydet.", font=("Hotel De Paris", 16))
+        label.pack(pady=20)
+
+        button = tk.Button(root, text="Resimleri Yükle", command=self.load_images)
+        button.pack()
+        
+        self.selected_option = tk.StringVar()
+        option_frame = tk.Frame(root)
+        option_frame.pack(pady=10)
+
+        
+        self.option1 = tk.Radiobutton(option_frame, text="1 Kişilik", variable=self.selected_option, value="option1")
+        self.option1.grid(row=0, column=0, padx=5)
+        
+        self.option2 = tk.Radiobutton(option_frame, text="2 kişilik", variable=self.selected_option, value="option2")
+        self.option2.grid(row=0, column=1, padx=5)
+        button = tk.Button(root, text="Resimleri Kaydet", command=self.save_images_to_folder)
+        button.pack()
+
+    def Yuklemeekrani(self):
+        if self.folder_path:
+            progress_window = tk.Tk()
+            progress_window.title("Yükleniyor...")
+            progress_window.configure(bg='black')
+            
+            loading_label = tk.Label(progress_window, text="LOADING.", font=("Hotel De Paris", 16), bg='black', fg='white')
     
-    # Zip dosyasını aç
-    with ZipFile(font_zip_path, 'r') as zipObj:
-        # Zip dosyasındaki tüm dosyaları çıkar
-        zipObj.extractall()
-    
-    # Zip dosyasını sil
-    os.remove(font_zip_path)
+            loading_label.pack(pady=20)
+            
+            s = ttk.Style()
+            s.theme_use('clam')
+            s.configure("white.Horizontal.TProgressbar", troughcolor='black', bordercolor='black', background='white', lightcolor='white', darkcolor='white')
+            
+            progress_bar = ttk.Progressbar(progress_window, style="white.Horizontal.TProgressbar", orient="horizontal", length=300, mode="determinate")
+            progress_bar.pack(pady=10)
+            
+            for i in range(101):
+                time.sleep(0.05)
+                progress_bar["value"] = i
+                progress_bar.update()
+            
+            progress_window.destroy()
 
-    # Resim eklemek için bir boşluk oluşturmak
-def load_image(resim):
-        image = Image.open(resim)  # 'resim.png' yerine kendi resim dosyanızın adını verin
-        photo = ImageTk.PhotoImage(image)
-        image_label.config(image=photo)
-        image_label.image = photo  # Resmi global olarak saklamak için bu satırı ekliyoruz
-def integrate_face_recognition(folder_path):
-    # Burada yüz tanıma işlemleri yapılacak
-    # ...
 
-    # Elde edilen sonuçları tkinter arayüzünde göstermek için bir fonksiyon çağırabiliriz
-    # Tkinter penceresi oluşturma
-    root = tk.Tk()
-    root.title("Yüz Tanıma Sonuçları")
-    # Resimleri göstermek için bir frame oluşturma
-    image_frame = tk.Frame(root)
-    image_frame.pack(padx=10, pady=10)
-    # Her bir resmi ImageTk formatına dönüştürüp gösterme
-    for i, image_path in enumerate(folder_path):
-        img = Image.open(image_path)
-        img = img.resize((200, 200), Image.ANTIALIAS)  # Resmi istediğiniz boyuta küçültmek için
-        photo = ImageTk.PhotoImage(img)
+
+    def kontrol(self,dizi,explorer):
+            liste= []
+            for i, image in enumerate(os.listdir(explorer)):
+                for x in range(len(dizi)): 
+                    if dizi[x][0] == i + 1:
+                        folder = "galeri/" + image
+                        liste.append(folder)
+            return liste
         
-        label = tk.Label(image_frame, image=photo)
-        label.image = photo  # Referansı saklamak için bu satırı ekliyoruz
-        label.grid(row=i // 4, column=i % 4, padx=10, pady=10)  # Örnek olarak 4 sütunlu bir düzen kullanıyoruz
+    def open_file(self,image_path):
+         new_window = tk.Toplevel(self.root)
+         new_window.title("Tıkladığınız kişinin Fotoğrafları")
+         img = Image.open(image_path)
+         photo = ImageTk.PhotoImage(img)
 
-    root.mainloop()
-# Örnek bir fonksiyon, gerçek sonuçları buraya ekleyebilirsin
+         label = tk.Label(new_window, image=photo)
+         label.image = photo
+         label.pack()
+         
+    def on_image_click(self,image_path,person):
+        self.l = self.l+1
+        self.secili_secenek = self.selected_option.get()
+        if self.secili_secenek == "option1":
+            person1 = "kisi" + str(person)
+            image_files = tekkisiarama(self.folder_path, person1)
+            self.loadimages = image_files 
+            new_window = tk.Toplevel(self.root)
+            for i, image_file in enumerate(image_files):
+                                image_path = os.path.join(self.folder_path, image_file)
+                                img = Image.open(image_path)
+                                img = img.resize((200, 200))
+                                photo = ImageTk.PhotoImage(img)
+                    
+                                label = tk.Label(new_window,image=photo)
+                                label.photo = photo
+                                label.grid(row=i // 4, column=i % 4, padx=10, pady=10)
+                                
+        elif self.secili_secenek == "option2":
+            if  self.l <= 1:
+                self.person1 = "kisi" + str(person)
+            
+            if self.l == 2:
+                self.person2 = "kisi" + str(person)
+                image_files = ikikisiarama(self.folder_path, self.person1, self.person2)
+                self.loadimages = image_files
+                new_window = tk.Toplevel(self.root)
+                print(image_files)
+                for i, image_file in enumerate(image_files):
+                                    image_path = os.path.join(self.folder_path, image_file)
+                                    img = Image.open(image_path)
+                                    img = img.resize((200, 200))
+                                    photo = ImageTk.PhotoImage(img)
+                        
+                                    label = tk.Label(new_window,image=photo)
+                                    label.photo = photo
+                                    label.grid(row=i // 4, column=i % 4, padx=10, pady=10)
+        return image_files                           
+          
+         
+    def load_images(self):
+            okuma(self.folder_path, kisiler)
+            self.kontrol(kisiler,self.folder_path)
+            self.show_images_in_folder()
+            
+    def save_images_to_folder(self):
+            destination_folder = filedialog.askdirectory(title="Select a destination folder")
+            if destination_folder:
+                image_files =  self.loadimages
+                for i, image_file in enumerate(image_files):
+                    source_path = os.path.join(self.folder_path, image_file)
+                    destination_path = os.path.join(destination_folder, image_file)
+                    shutil.copy(source_path, destination_path)
+                    print("Image saved")
 
 
-def kontrol(dizi, explorer):
-    global kilit
-    kilit = biseyler(explorer, kisiler, kilit)
+    def show_images_in_folder(self):
+        # Get a list of image files in the selected folder
+        print(kisiler)
+        image_files = kisiler
 
-    for i, image in enumerate(os.listdir(explorer)):
-        if dizi[i][0] == i + 1:
-            folder = "galeri/" + image
-            open_file(folder)
-
-def on_button_click():
-    folder_path = filedialog.askdirectory()
-    okuma(folder_path, kisiler)
-    global kilit
-    kilit = biseyler(folder_path, kisiler, kilit)
-    kontrol(kilit,folder_path);
-    if folder_path:
-        progress_window = tk.Tk()
-        progress_window.title("Yükleniyor...")
-        progress_window.configure(bg='black')
+        for i, image_file in enumerate(image_files):
+            for x in range(len(self.folder_path)):
+                if kisiler[i][0] == x+1:
+                    image_path = os.path.join(self.folder_path, image_file[2])
+                    img = Image.open(image_path)
+                    img = img.resize((200, 200))
+                    photo = ImageTk.PhotoImage(img)
         
-        loading_label = tk.Label(progress_window, text="LOADING.", font=("Hotel De Paris", 16), bg='black', fg='white')
-
-        loading_label.pack(pady=20)
-        
-        s = ttk.Style()
-        s.theme_use('clam')
-        s.configure("white.Horizontal.TProgressbar", troughcolor='black', bordercolor='black', background='white', lightcolor='white', darkcolor='white')
-        
-        progress_bar = ttk.Progressbar(progress_window, style="white.Horizontal.TProgressbar", orient="horizontal", length=300, mode="determinate")
-        progress_bar.pack(pady=10)
-        
-        for i in range(101):
-            time.sleep(0.05)
-            progress_bar["value"] = i
-            progress_bar.update()
-        
-        progress_window.destroy()
-
-
-
-# Ana uygulama penceresini oluşturmak için Tkinter'ı başlat
-root = tk.Tk()
-if os.path.exists("PressStart2P-Regular.ttf"):
-    download_font("PressStart2P-Regular.ttf", "https://fonts.google.com/download?family=Press%20Start%202P")
-else:
-    print("indirildi")
-    
-root.title("Tkinter Örnek")
-
-label = tk.Label(root, text="Python arayüzüne hoş geldiniz!", font=("Hotel De Paris", 16))
-label.pack(pady=20)
-
-# Buton oluşturmak
-button = tk.Button(root, text="Ara", command=on_button_click)
-button.pack()
-
-# İki seçenekli radyo butonlar oluşturmak
-selected_option = tk.StringVar()
-option_frame = ttk.Frame(root)
-option_frame.pack(pady=10)
-
-option1 = ttk.Radiobutton(option_frame, text="1 Kişilik", variable=selected_option, value="option1")
-option1.grid(row=0, column=0, padx=5)
-
-option2 = ttk.Radiobutton(option_frame, text="2 kişilik", variable=selected_option, value="option2")
-option2.grid(row=0, column=1, padx=5)
-
-
-image_label = tk.Label(root)
-image_label.pack(pady=10)
-
-load_image("resim.png")  # Resmi yüklemek için fonksiyonu çağırıyoruz
-
-# Ana döngüyü başlatmak
-root.mainloop()
+                    label = tk.Label(self.image_frame,image=photo,text=f"{i+1}. kişi")
+                    label.photo = photo
+                    label.grid(row=i // 4, column=i % 4, padx=10, pady=10)                   
+                    label.bind("<Button-1>", lambda event, person=i+1, path=image_path: self.on_image_click(path,person))
+if __name__ == "__main__":
+        root = tk.Tk()
+        app = ImageGalleryApp(root)
+        root.mainloop()

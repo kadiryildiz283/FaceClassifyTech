@@ -14,6 +14,7 @@ def read_img(path):
 known_encodings = []
 known_names = []
 
+#    app = ImageGalleryApp(root)
 
 #print(resimler)
 kilit = []
@@ -25,7 +26,6 @@ sayac = 0
 def okuma(galeri, kilit):
     for file in os.listdir(galeri):
         global sayac
-        print(resimsayisi)
         sayac +=1
         img_path = os.path.join(galeri, file)
         try:
@@ -67,7 +67,7 @@ def okuma(galeri, kilit):
                     #crop_img = img[top:bottom+100, left-50:right+100]
                     #cv2.imwrite('bilinen/bilinen{}.jpg'.format(j), crop_img)
                     known_encodings.append(img_enc)
-                    kilit.append([sayac,"kisi",j])
+                    kilit.append([sayac,"kisi",file])
                     known_names.append("kisi{}".format(j))
                     #cv2.rectangle(img, (left, top), (right, bottom), (0, 0, 255), 2)
                     #cv2.putText(img,"Bilinmeyen Kisi,{}".format(j), (left+2,bottom+20), cv2.FONT_HERSHEY_PLAIN ,1,(255,255,255),1) 
@@ -77,10 +77,12 @@ def okuma(galeri, kilit):
             continue 
         
 #kisiler = []
-def biseyler(galeri,dizi,kilit):
+def returndizi(galeri,dizi,kilit):
     for h , file in enumerate(os.listdir(galeri)):
         for j in range(len(kilit)):
             if int(kilit[j][0])-1 == h:
+                print(h)
+                print(kilit[j][0]-1)
                 dizi.append(file)
     return dizi
             
@@ -102,12 +104,12 @@ def show_images(images,galeri):
     
 #show_images(kisiler)
 #arama = input("tek kişi için 1'e iki kişi aramak için 2 girin")
-d = 0
-e = 0
-def ikikisiarama(galeri,arama):
-    if arama == "2":
-     a = input("değer gir")
-     b = input("değer gir")
+
+def ikikisiarama(galeri,a,b):
+    d = 0
+    e = 0
+    arama = 2
+    if arama == 2:
      for file in os.listdir(galeri):
         global sayac
         sayac += 1 
@@ -137,7 +139,6 @@ def ikikisiarama(galeri,arama):
                             cv2.putText(img, name, (left+2, bottom+20), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
                             #cv2.imshow("img",img)
                             #cv2.waitKey(0)
-                            global e
                             if  e == 1:
                                 if a == name:
                                     e=0
@@ -169,18 +170,14 @@ def ikikisiarama(galeri,arama):
         except Exception as e:
             print(f"An error occurred for image {img_path}: {e}")
             continue  # Skip to the next image if any exception occurs
-
-    
-
+            
         d = 0
         e = 0
+    return kisi
 
 #show_images(kisi)
-def tekkisiarama(galeri):
-    if arama == "1":
-            print("girdi mi")
-            a = input("değer gir")
-            for file in os.listdir(galeri):
+def tekkisiarama(galeri,a):
+    for file in os.listdir(galeri):
              global sayac
              sayac += 1 
              img_path = os.path.join(galeri, file)
@@ -220,9 +217,9 @@ def tekkisiarama(galeri):
                                                    #cv2.imshow("img",im2)
                                                    #cv2.waitKey(0)
                                                    #birkez = 0
-            
+                                                   
              except Exception as e:
                print(f"An error occurred for image {img_path}: {e}")
              continue  # Skip to the next image if any exception occurs
-
+    return kisi
 #show_images(kisi)
